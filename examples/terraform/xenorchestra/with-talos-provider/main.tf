@@ -171,3 +171,24 @@ resource "talos_cluster_kubeconfig" "this" {
 
   depends_on = [talos_machine_bootstrap.this]
 }
+
+resource "helm_release" "xo-ccm" {
+  name       = "xo-ccm"
+  namespace = "kube-system"
+  repository = " oci://ghcr.io/vatesfr/charts"
+  chart      = "xenorchestra-cloud-controller-manager"
+  set = [{
+    name  = "config.url"
+    value = "http://${var.xoa_url}"
+  },
+  {
+    name  = "config.insecure"
+    value = "true"
+  },
+  {
+    name  = "config.token"
+    value = var.xoa_token
+  }]
+
+  depends_on = [ talos_cluster_kubeconfig.this ]
+}
